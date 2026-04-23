@@ -3,6 +3,7 @@
 
 const state = {
   year: "all",
+  status: "all",
   charts: {}, // name -> Chart instance
   data: {},   // name -> last fetched payload
   types: { salesChart: "line", ordersChart: "bar", productsChart: "bar", spChart: "line" },
@@ -16,13 +17,14 @@ const state = {
 const STATIC_MODE = typeof window !== "undefined" && window.DASHBOARD_STATIC === true;
 
 function apiUrl(path) {
-  // path is e.g. "/api/kpis?year=2018" or "/api/meta"
+  // path is e.g. "/api/kpis?year=2018&status=delivered" or "/api/meta"
   if (!STATIC_MODE) return path;
   const [ep, qs] = path.replace(/^\/api\//, "").split("?");
   if (ep === "meta") return "data/meta.json";
   const params = new URLSearchParams(qs || "");
   const year = params.get("year") || "all";
-  return `data/${ep}-${year}.json`;
+  const status = params.get("status") || "all";
+  return `data/${ep}-${year}-${status}.json`;
 }
 
 const fmtMoney = (n) =>
@@ -340,10 +342,15 @@ function renderKpis(k) {
 // ---------------------------------------------------------------------------
 // Data load + UI wiring
 // ---------------------------------------------------------------------------
+function buildQuery() {
+  const p = new URLSearchParams({ year: state.year, status: state.status });
+  return `?${p.toString()}`;
+}
+
 async function loadAll() {
   showLoader(true);
   try {
-    const q = `?year=${encodeURIComponent(state.year)}`;
+    const q = buildQuery();
     const [kpis, sales, orders, products, sp, map, _geo] = await Promise.all([
       jget("/api/kpis" + q),
       jget("/api/sales-by-month" + q),
@@ -368,14 +375,89 @@ async function loadAll() {
   }
 }
 
-async function initYearFilter() {
+const STATUS_LABELS = {
+  all: "All statuses",
+  delivered: "Delivered",
+  shipped: "Shipped",
+  canceled: "Canceled",
+  processing: "Processing",
+  invoiced: "Invoiced",
+  approved: "Approved",
+  unavailable: "Unavailable",
+  created: "Created",
+};
+
+function labelForStatus(s) {
+  return STATUS_LABELS[s] || s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+function renderActiveFilters() {
+  const container = document.getElementById("activeFilters");
+  const pills = [];
+  if (state.year !== "all") {
+    pills.push({ key: "Year", label: state.year, clear: () => (state.year = "all") });
+  }
+  if (state.status !== "all") {
+    pills.push({
+      key: "Status",
+      label: labelForStatus(state.status),
+      clear: () => (state.status = "all"),
+    });
+  }
+  container.innerHTML = "";
+  pills.forEach((p) => {
+    const el = document.createElement("span");
+    el.className = "filter-pill";
+    el.innerHTML = `<span class="pill-key">${p.key}</span><span>${p.label}</span><button aria-label="Clear ${p.key}">×</button>`;
+    el.querySelector("button").addEventListener("click", () => {
+      p.clear();
+      syncFilterSelects();
+      renderActiveFilters();
+      loadAll();
+    });
+    container.appendChild(el);
+  });
+}
+
+function syncFilterSelects() {
+  document.getElementById("yearFilter").value = state.year;
+  document.getElementById("statusFilter").value = state.status;
+}
+
+async function initFilters() {
   const meta = await jget("/api/meta");
-  const sel = document.getElementById("yearFilter");
-  sel.innerHTML =
+
+  const yearSel = document.getElementById("yearFilter");
+  yearSel.innerHTML =
     `<option value="all">All years</option>` +
     meta.years.map((y) => `<option value="${y}">${y}</option>`).join("");
-  sel.addEventListener("change", (e) => {
+  yearSel.addEventListener("change", (e) => {
     state.year = e.target.value;
+    renderActiveFilters();
+    loadAll();
+  });
+
+  const statusSel = document.getElementById("statusFilter");
+  const statuses = meta.statuses || [];
+  statusSel.innerHTML =
+    `<option value="all">All statuses</option>` +
+    statuses
+      .map(
+        (s) =>
+          `<option value="${s.value}">${labelForStatus(s.value)} (${s.count.toLocaleString()})</option>`
+      )
+      .join("");
+  statusSel.addEventListener("change", (e) => {
+    state.status = e.target.value;
+    renderActiveFilters();
+    loadAll();
+  });
+
+  document.getElementById("resetBtn").addEventListener("click", () => {
+    state.year = "all";
+    state.status = "all";
+    syncFilterSelects();
+    renderActiveFilters();
     loadAll();
   });
 }
@@ -425,6 +507,7 @@ document.getElementById("refreshBtn").addEventListener("click", loadAll);
   wireChartToggles();
   wireMapToggles();
   wireNav();
-  await initYearFilter();
+  await initFilters();
+  renderActiveFilters();
   await loadAll();
 })();

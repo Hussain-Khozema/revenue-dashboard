@@ -71,6 +71,21 @@ def _filter_by_year(df: pd.DataFrame, year: str | None) -> pd.DataFrame:
         return df
 
 
+def _filter_by_status(df: pd.DataFrame, status: str | None) -> pd.DataFrame:
+    if not status or status == "all":
+        return df
+    return df[df["order_status"] == status]
+
+
+def _filtered_orders() -> pd.DataFrame:
+    """Apply ?year=&status= filters from the current request."""
+    year = request.args.get("year", "all")
+    status = request.args.get("status", "all")
+    df = _filter_by_year(DATA["orders"], year)
+    df = _filter_by_status(df, status)
+    return df
+
+
 # ---------------------------------------------------------------------------
 # API endpoints
 # ---------------------------------------------------------------------------
@@ -81,16 +96,22 @@ def index():
 
 @app.route("/api/meta")
 def api_meta():
-    """Return the list of years available so the UI can build the filter."""
+    """Return years and statuses available so the UI can build filters."""
     years = sorted(DATA["orders"]["order_year"].dropna().unique().astype(int).tolist())
-    return jsonify({"years": years})
+    status_counts = (
+        DATA["orders"]["order_status"].value_counts().to_dict()
+    )
+    statuses = [
+        {"value": s, "count": int(c)}
+        for s, c in sorted(status_counts.items(), key=lambda kv: -kv[1])
+    ]
+    return jsonify({"years": years, "statuses": statuses})
 
 
 @app.route("/api/kpis")
 def api_kpis():
     """High-level KPI cards."""
-    year = request.args.get("year", "all")
-    orders = _filter_by_year(DATA["orders"], year)
+    orders = _filtered_orders()
 
     total_revenue = float(orders["order_revenue"].sum())
     total_orders = int(orders["order_id"].nunique())
@@ -110,8 +131,7 @@ def api_kpis():
 @app.route("/api/sales-by-month")
 def api_sales_by_month():
     """Monthly revenue timeseries."""
-    year = request.args.get("year", "all")
-    orders = _filter_by_year(DATA["orders"], year)
+    orders = _filtered_orders()
 
     monthly = (
         orders.groupby("order_month", as_index=False)["order_revenue"]
@@ -129,8 +149,7 @@ def api_sales_by_month():
 @app.route("/api/orders-by-month")
 def api_orders_by_month():
     """Monthly distinct order count."""
-    year = request.args.get("year", "all")
-    orders = _filter_by_year(DATA["orders"], year)
+    orders = _filtered_orders()
 
     monthly = (
         orders.groupby("order_month")["order_id"].nunique().reset_index(name="order_count")
@@ -147,8 +166,7 @@ def api_orders_by_month():
 @app.route("/api/top-products")
 def api_top_products():
     """Top 10 most-purchased products (by line-item occurrence count)."""
-    year = request.args.get("year", "all")
-    orders = _filter_by_year(DATA["orders"], year)
+    orders = _filtered_orders()
 
     items = DATA["items"].merge(
         orders[["order_id"]], on="order_id", how="inner"
@@ -187,10 +205,7 @@ def api_top_products():
 @app.route("/api/sao-paulo-share")
 def api_sao_paulo_share():
     """Percentage of unique customers ordering from Sao Paulo per month."""
-    year = request.args.get("year", "all")
-    orders = _filter_by_year(DATA["orders"], year)
-
-    orders = orders.copy()
+    orders = _filtered_orders().copy()
     orders["is_sao_paulo"] = (
         orders["customer_city"].fillna("").str.strip().str.lower() == "sao paulo"
     )
@@ -228,8 +243,7 @@ def api_sao_paulo_share():
 @app.route("/api/revenue-by-state")
 def api_revenue_by_state():
     """Revenue and order counts aggregated per Brazilian state (customer_state)."""
-    year = request.args.get("year", "all")
-    orders = _filter_by_year(DATA["orders"], year)
+    orders = _filtered_orders()
 
     by_state = (
         orders.dropna(subset=["customer_state"])

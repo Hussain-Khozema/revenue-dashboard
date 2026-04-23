@@ -35,9 +35,10 @@ def main() -> None:
 
     client = flask_app.test_client()
 
-    # Discover available years from the meta endpoint
+    # Discover available years and statuses from the meta endpoint
     meta = client.get("/api/meta").get_json()
     years = ["all"] + [str(y) for y in meta["years"]]
+    statuses = ["all"] + [s["value"] for s in meta["statuses"]]
     _write(DATA_DIR / "meta.json", meta)
 
     endpoints = [
@@ -48,11 +49,14 @@ def main() -> None:
         "sao-paulo-share",
         "revenue-by-state",
     ]
+    count = 0
     for ep in endpoints:
         for year in years:
-            resp = client.get(f"/api/{ep}?year={year}").get_json()
-            _write(DATA_DIR / f"{ep}-{year}.json", resp)
-            print(f"wrote data/{ep}-{year}.json")
+            for status in statuses:
+                resp = client.get(f"/api/{ep}?year={year}&status={status}").get_json()
+                _write(DATA_DIR / f"{ep}-{year}-{status}.json", resp)
+                count += 1
+    print(f"wrote {count} endpoint JSON files across {len(years)} years × {len(statuses)} statuses")
 
     # Copy the static assets & rendered index.html
     shutil.copytree(ROOT / "static", DIST / "static")

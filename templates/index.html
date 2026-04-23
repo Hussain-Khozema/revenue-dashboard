@@ -44,11 +44,20 @@
           <p class="subtitle">Interactive overview of sales, orders, products and São Paulo customer share.</p>
         </div>
         <div class="filters">
-          <label for="yearFilter">Year</label>
-          <select id="yearFilter" class="select"></select>
+          <div class="filter-group">
+            <label for="yearFilter">Year</label>
+            <select id="yearFilter" class="select"></select>
+          </div>
+          <div class="filter-group">
+            <label for="statusFilter">Order status</label>
+            <select id="statusFilter" class="select"></select>
+          </div>
+          <button id="resetBtn" class="btn-ghost" title="Reset all filters">Reset</button>
           <button id="refreshBtn" class="btn">Refresh</button>
         </div>
       </header>
+
+      <div id="activeFilters" class="active-filters"></div>
 
       <section id="overview" class="kpis">
         <div class="kpi-card">
