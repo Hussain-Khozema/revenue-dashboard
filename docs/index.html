@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Revenue Analytics Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="static/css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">R</div>
+        <div>
+          <div class="brand-title">Revenue OS</div>
+          <div class="brand-sub">VP of Revenue Dashboard</div>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <a href="#overview" class="nav-item active">Overview</a>
+        <a href="#sales" class="nav-item">Sales by Month</a>
+        <a href="#orders" class="nav-item">Order Volume</a>
+        <a href="#products" class="nav-item">Top Products</a>
+        <a href="#saopaulo" class="nav-item">São Paulo Share</a>
+        <a href="#map" class="nav-item">Revenue Map</a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="status-dot"></div>
+        <span>Live data</span>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <h1>Revenue Analytics</h1>
+          <p class="subtitle">Interactive overview of sales, orders, products and São Paulo customer share.</p>
+        </div>
+        <div class="filters">
+          <label for="yearFilter">Year</label>
+          <select id="yearFilter" class="select"></select>
+          <button id="refreshBtn" class="btn">Refresh</button>
+        </div>
+      </header>
+
+      <section id="overview" class="kpis">
+        <div class="kpi-card">
+          <div class="kpi-label">Total Revenue</div>
+          <div class="kpi-value" id="kpiRevenue">—</div>
+          <div class="kpi-foot">Sum of item price + shipping</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Total Orders</div>
+          <div class="kpi-value" id="kpiOrders">—</div>
+          <div class="kpi-foot">Distinct order IDs</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Unique Customers</div>
+          <div class="kpi-value" id="kpiCustomers">—</div>
+          <div class="kpi-foot">Distinct customer IDs</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Avg Order Value</div>
+          <div class="kpi-value" id="kpiAOV">—</div>
+          <div class="kpi-foot">Revenue ÷ orders</div>
+        </div>
+      </section>
+
+      <section id="sales" class="card">
+        <div class="card-header">
+          <div>
+            <h2>Sales by Month</h2>
+            <p>Total revenue (BRL) aggregated by order purchase month.</p>
+          </div>
+          <div class="chart-toggle">
+            <button class="toggle-btn active" data-target="salesChart" data-type="line">Line</button>
+            <button class="toggle-btn" data-target="salesChart" data-type="bar">Bar</button>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="salesChart"></canvas></div>
+      </section>
+
+      <section id="orders" class="card">
+        <div class="card-header">
+          <div>
+            <h2>Order Volume by Month</h2>
+            <p>Number of distinct orders placed each month.</p>
+          </div>
+          <div class="chart-toggle">
+            <button class="toggle-btn" data-target="ordersChart" data-type="line">Line</button>
+            <button class="toggle-btn active" data-target="ordersChart" data-type="bar">Bar</button>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="ordersChart"></canvas></div>
+      </section>
+
+      <section id="products" class="card">
+        <div class="card-header">
+          <div>
+            <h2>Top 10 Most Purchased Products</h2>
+            <p>Ranked by number of order line items — hover for category.</p>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="productsChart"></canvas></div>
+      </section>
+
+      <section id="saopaulo" class="card">
+        <div class="card-header">
+          <div>
+            <h2>São Paulo Customer Share</h2>
+            <p>% of unique customers each month whose city is São Paulo.</p>
+          </div>
+          <div class="chart-toggle">
+            <button class="toggle-btn active" data-target="spChart" data-type="line">Line</button>
+            <button class="toggle-btn" data-target="spChart" data-type="bar">Bar</button>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="spChart"></canvas></div>
+      </section>
+
+      <section id="map" class="card">
+        <div class="card-header">
+          <div>
+            <h2>Revenue Map — Brazilian States</h2>
+            <p>Choropleth of total revenue by customer state. Switch the metric for order or customer density.</p>
+          </div>
+          <div class="chart-toggle">
+            <button class="toggle-btn active" data-map-metric="revenue">Revenue</button>
+            <button class="toggle-btn" data-map-metric="orders">Orders</button>
+            <button class="toggle-btn" data-map-metric="customers">Customers</button>
+          </div>
+        </div>
+        <div id="mapChart" class="chart-wrap map-wrap"></div>
+      </section>
+
+      <footer class="footer">Built with Flask · pandas · Chart.js · Plotly</footer>
+    </main>
+  </div>
+
+  <div id="loader" class="loader hidden"><div class="spinner"></div></div>
+
+  <script>window.DASHBOARD_STATIC = true;</script>
+  <script src="static/js/dashboard.js"></script>
+</body>
+</html>
