@@ -29,6 +29,7 @@
         <a href="#products" class="nav-item">Top Products</a>
         <a href="#saopaulo" class="nav-item">São Paulo Share</a>
         <a href="#map" class="nav-item">Revenue Map</a>
+        <a href="#summary" class="nav-item">Executive Summary</a>
       </nav>
 
       <div class="sidebar-footer">
@@ -147,6 +148,75 @@
           </div>
         </div>
         <div id="mapChart" class="chart-wrap map-wrap"></div>
+      </section>
+
+      <section id="summary" class="card summary-card">
+        <div class="summary-header">
+          <div>
+            <span class="summary-eyebrow">Executive Summary</span>
+            <h2>Memo to the VP of Revenue</h2>
+            <p class="summary-meta">Reporting window: Sep 2016 – Aug 2018 · 89,316 orders · 68,772 unique customers</p>
+          </div>
+        </div>
+
+        <div class="summary-grid">
+          <div class="summary-stat">
+            <div class="summary-stat-label">Total Revenue</div>
+            <div class="summary-stat-value">R$34.4M</div>
+            <div class="summary-stat-delta good">+14% YoY · 8 months of 2018</div>
+          </div>
+          <div class="summary-stat">
+            <div class="summary-stat-label">Fulfillment Rate</div>
+            <div class="summary-stat-value">97.9%</div>
+            <div class="summary-stat-delta good">Delivered · 0.46% cancel rate</div>
+          </div>
+          <div class="summary-stat">
+            <div class="summary-stat-label">Revenue Concentration</div>
+            <div class="summary-stat-value">41.6%</div>
+            <div class="summary-stat-delta warn">in São Paulo state alone</div>
+          </div>
+          <div class="summary-stat">
+            <div class="summary-stat-label">Avg Order Value</div>
+            <div class="summary-stat-value">R$385</div>
+            <div class="summary-stat-delta">Stable across 2017–2018</div>
+          </div>
+        </div>
+
+        <div class="summary-body">
+          <h3>What the data says</h3>
+          <ol class="summary-list">
+            <li>
+              <strong>Growth is real and accelerating.</strong> Revenue grew from R$16.0M in 2017 (full year) to R$18.3M in just the first 8 months of 2018 — a 14% uplift with four months left on the clock. Order volume climbed from 41,124 to 47,899 over the same window (+16.5%), and by late 2017 we had crossed a sustained plateau of roughly 6,000 orders per month.
+            </li>
+            <li>
+              <strong>Operational performance is strong.</strong> 97.9% of orders are successfully delivered and only 0.46% are canceled. Shipped-but-undelivered and in-progress orders together represent less than 1.8% of volume. The funnel is healthy — growth is demand-constrained, not fulfillment-constrained.
+            </li>
+            <li>
+              <strong>Revenue is dangerously concentrated in the Southeast.</strong> São Paulo state alone contributes R$14.3M (41.6% of total), and the top 5 states (SP, RJ, MG, PR, RS) account for 77% of all revenue. The North and Northeast regions remain largely untapped — RR, AP, and AC each sit below R$100K in lifetime revenue.
+            </li>
+            <li>
+              <strong>São Paulo city is a stable — not growing — share of customers.</strong> Between 14.6% and 20.2% of monthly active customers are based in São Paulo city, averaging ~17% across 2018 with no clear upward or downward trend. Our customer base is diversifying geographically at roughly the same rate the city grows.
+            </li>
+            <li>
+              <strong>Top products are heavily skewed to toys and lifestyle categories.</strong> Of the top 10 most-purchased SKUs, 6 belong to the <em>toys</em> category, with <em>garden_tools</em>, <em>watches_gifts</em>, <em>computers_accessories</em> and <em>health_beauty</em> completing the list. The single highest-velocity product had 405 orders over the full window.
+            </li>
+            <li>
+              <strong>Canceled orders have a distinctive São Paulo signature.</strong> When filtering to status = canceled, the São Paulo share of monthly customers spikes to 45% in April 2018 — dramatically higher than our ~15% baseline. This is worth a deeper dive: it likely reflects either a localized delivery/logistics incident or a marketing cohort that did not convert.
+            </li>
+          </ol>
+
+          <h3>Recommended next steps</h3>
+          <ul class="summary-list">
+            <li><strong>De-risk the SP dependency.</strong> Commission targeted acquisition campaigns in the mid-tier states (PR, RS, SC, GO) where we already have footprint but sub-scale revenue. A 20% lift in the next five states would diversify revenue without requiring a greenfield market.</li>
+            <li><strong>Investigate the April 2018 São Paulo cancellation spike.</strong> Cross-reference with fulfillment logs and marketing spend for that window. If it is isolated to a specific seller or carrier, this is a quick structural fix.</li>
+            <li><strong>Double down on toys &amp; garden.</strong> These categories dominate the top-10 by frequency. Expanding SKU depth here with the same sellers is the lowest-risk revenue expansion available to us.</li>
+            <li><strong>Protect the 97.9% delivery rate.</strong> It is an unusually strong number and is likely a material driver of repeat purchase. Any logistics consolidation project should treat this KPI as a no-regress constraint.</li>
+          </ul>
+
+          <p class="summary-signoff">
+            The underlying trajectory is positive, the operations are healthy, and the primary strategic risk is geographic concentration. The dashboard above supports filtering every one of these figures by year and order status — recommended starting views are highlighted in the nav.
+          </p>
+        </div>
       </section>
 
       <footer class="footer">Built with Flask · pandas · Chart.js · Plotly</footer>
